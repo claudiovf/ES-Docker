@@ -1,24 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from 'react';
 import './App.css';
 
-function App() {
+const App: React.FC = () => {
+  const [displayData, setDisplayData] = useState<any>(null);
+
+  const getData = () => {
+    
+    fetch('http://localhost:9200/inspections/_search')
+      .then(res => res.json())
+      .then(data => setDisplayData(data.hits.hits))
+      .catch(err  => console.log(err.message))
+  }
+
+  const dataKeys = Object.keys(displayData[0]._source)
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Elastic Docker</h1>
+
+        <button onClick={() => getData()}>Get Data</button>
+      {
+        displayData 
+        ?<table>
+          <tbody>
+            <tr>
+              {
+                dataKeys.map(field =><th key={field}>
+                  {
+                    field
+                      .split("_")
+                      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                      .join(" ")
+                  }
+                  </th>)
+              }
+            </tr>
+            {
+              displayData.map((item: any) => 
+                <tr key={item._id}>
+                  {
+                    dataKeys.map(field => <td key={field}>{
+                      typeof item._source[field] !== "object" ? item._source[field] : "Object"
+                    }</td>)
+                  }
+                </tr>
+                )
+            }
+            
+          </tbody>
+        </table>
+      : null
+      }
     </div>
   );
 }
