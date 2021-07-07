@@ -13,14 +13,16 @@ const App: React.FC = () => {
       .catch(err  => console.log(err.message))
   }
 
-  const dataKeys = Object.keys(displayData[0]._source)
+  const dataKeys = displayData ? Object.keys(displayData[0]._source) : null;
+  
+  console.log('running on docker on prod NGINX for router')
   return (
     <div className="App">
       <h1>Elastic Docker</h1>
 
         <button onClick={() => getData()}>Get Data</button>
       {
-        displayData 
+        displayData && dataKeys
         ?<table>
           <tbody>
             <tr>
